@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>IT 资产台账系统</title>
+  <link rel="stylesheet" href="styles.css?v=1" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app-shell" id="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-area">
+        <img id="sidebar-logo" class="brand-logo" src="/default-logo.svg" alt="资产台账" />
+        <div>
+          <h1>资产台账</h1>
+          <p>专业设备管理</p>
+        </div>
+      </div>
+      <div class="user-widget" id="user-widget"></div>
+      <nav class="menu" id="menu"></nav>
+    </aside>
+
+    <main class="content-area">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" id="hamburger-btn" aria-label="菜单">☰</button>
+          <div class="page-title" id="page-title">登录</div>
+        </div>
+        <button class="btn-secondary" id="logout-btn" hidden>退出登录</button>
+      </div>
+      <section class="content-panel" id="main-panel"></section>
+    </main>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+    <div class="mobile-tabbar" id="mobile-tabbar"></div>
+    <div class="mobile-more-overlay" id="mobile-more-overlay"></div>
+    <div class="mobile-more-popup" id="mobile-more-popup"></div>
+  </div>
+
+  <div class="login-page" id="login-page" hidden>
+    <div class="login-container">
+      <div class="login-header">
+        <img id="login-logo" class="login-logo" src="/default-logo.svg" alt="资产台账系统" />
+        <h1>资产台账系统</h1>
+        <p>专业设备管理平台</p>
+      </div>
+      <div class="login-panel">
+        <h2>账号登录</h2>
+        <div class="form-grid">
+          <label>用户名</label>
+          <input id="login-username" type="text" placeholder="请输入账号" />
+          <label>密码</label>
+          <input id="login-password" type="password" placeholder="请输入密码" />
+        </div>
+        <button class="btn-primary" id="login-submit">登录</button>
+        <p class="tips"></p>
+      </div>
+    </div>
+  </div>
+
+  <template id="login-template">
+    <div class="login-panel">
+      <h2>账号登录</h2>
+      <div class="form-grid">
+        <label>用户名</label>
+        <input id="login-username" type="text" placeholder="admin" />
+        <label>密码</label>
+        <input id="login-password" type="password" placeholder="admimn" />
+      </div>
+      <button class="btn-primary" id="login-submit">登录</button>
+      <p class="tips">默认账号 admin / admimn</p>
+    </div>
+  </template>
+
+  <template id="devices-template">
+    <div class="panel">
+      <div class="panel-header">
+        <input id="device-search" class="search-input" placeholder="搜索名称、IP、类型、品牌、位置、备注" />
+        <div class="device-actions">
+          <button class="btn-secondary" id="download-template">下载模板</button>
+          <label class="btn-secondary input-file">
+            导入设备
+            <input id="device-import" type="file" accept=".csv" hidden />
+          </label>
+          <button class="btn-secondary" id="export-selected">导出所选</button>
+          <button class="btn-secondary" id="delete-selected" disabled>删除所选</button>
+          <button class="btn-primary" id="new-device">添加设备</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th><label><input id="select-all" type="checkbox" /> 全选</label></th>
+              <th><span class="sortable" data-sort="name">名称 <span class="sort-indicator"></span></span></th>
+              <th><span class="sortable" data-sort="device_type">类型 <span class="sort-indicator"></span></span></th>
+              <th>品牌</th>
+              <th><span class="sortable" data-sort="ip_address">IP 地址 <span class="sort-indicator"></span></span></th>
+              <th><span class="sortable" data-sort="nvr_name">所属 NVR <span class="sort-indicator"></span></span></th>
+              <th>备注</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="device-list"></tbody>
+        </table>
+      </div>
+      <div class="pagination-bar">
+        <div class="pagination-left">
+          <span id="device-page-info"></span>
+          <select id="page-size" class="page-size-select">
+            <option value="10">10 条/页</option>
+            <option value="20">20 条/页</option>
+            <option value="50">50 条/页</option>
+            <option value="100">100 条/页</option>
+          </select>
+        </div>
+        <div class="pagination-actions">
+          <button class="btn-secondary" id="prev-page">上一页</button>
+          <div id="page-numbers" class="page-numbers"></div>
+          <button class="btn-secondary" id="next-page">下一页</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="types-template">
+    <div class="panel">
+      <div class="panel-header">
+        <button class="btn-primary" id="new-type">添加类型</button>
+        <button class="btn-primary" id="new-brand">添加品牌</button>
+      </div>
+      <div class="sub-panel">
+        <div class="sub-card">
+          <h3>设备类型</h3>
+          <table class="small-table">
+            <thead><tr><th>名称</th><th>Logo</th><th>操作</th></tr></thead>
+            <tbody id="type-list"></tbody>
+          </table>
+        </div>
+        <div class="sub-card">
+          <h3>品牌管理</h3>
+          <table class="small-table">
+            <thead><tr><th>品牌</th><th>Logo</th><th>操作</th></tr></thead>
+            <tbody id="brand-list"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="nvrs-template">
+    <div class="panel">
+      <div class="panel-header">
+        <button class="btn-primary" id="new-nvr">添加录像机</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>名称</th><th>IP</th><th>品牌</th><th>安装位置</th><th>存储</th><th>备注</th><th>操作</th></tr>
+          </thead>
+          <tbody id="nvr-list"></tbody>
+        </table>
+      </div>
+    </div>
+  </template>
+
+  <template id="users-template">
+    <div class="panel">
+      <div class="panel-header">
+        <button class="btn-primary" id="new-user">添加维修人员</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>账号</th><th>姓名</th><th>头像</th><th>权限</th><th>操作</th></tr></thead>
+          <tbody id="user-list"></tbody>
+        </table>
+      </div>
+    </div>
+  </template>
+
+  <template id="records-template">
+    <div class="panel">
+      <div class="panel-header">
+        <button class="btn-primary" id="new-record">新增记录</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>设备</th><th>维修人员</th><th>时间</th><th>内容</th><th>备注</th><th>操作</th></tr></thead>
+          <tbody id="record-list"></tbody>
+        </table>
+      </div>
+    </div>
+  </template>
+
+  <template id="dialog-template">
+    <div class="modal-backdrop">
+      <div class="modal-card">
+        <h3 id="dialog-title"></h3>
+        <div class="dialog-body" id="dialog-body"></div>
+        <div class="dialog-actions">
+          <button type="button" class="btn-secondary" id="dialog-cancel">取消</button>
+          <button type="button" class="btn-primary" id="dialog-submit">保存</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script src="app.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    container_name: it-ledger
+    ports:
+      - "3000:3000"
+    volumes:
+      # 持久化数据库目录
+      - ./data:/app/data
+      # 持久化上传文件
+      - ./uploads:/app/uploads
+      # 持久化备份文件
+      - ./backups:/app/backups
+    environment:
+      - PORT=3000
+    restart: unless-stopped

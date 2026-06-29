@@ -1,0 +1,21 @@
+node_modules/
+.env
+
+# Local database and runtime data
+data/
+uploads/
+backups/
+
+# Generated/public uploads
+public/uploads/
+
+# Archives and local release packages
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
